@@ -50,8 +50,12 @@ $.extend({
       const vcodeBlockDiv = $(vcodeBlockDivHtml)
       const vcodeDialog = $(vcodeDialogHtml)
       //加载验证码图片
-      let vcodeResult = await util.getVcode()
-      vcodeDialog.find('img.img-code').attr('src', vcodeResult.img)
+      let vcodeResult
+      const refreshVcode = async () => {
+        vcodeResult = await util.getVcode()
+        vcodeDialog.find('img.img-code').attr('src', vcodeResult.img)
+      }
+      await refreshVcode()
       //显示
       $('body').append(vcodeBlockDiv)
       $('body').append(vcodeDialog)
@@ -63,22 +67,37 @@ $.extend({
           $.showError('请输入验证码')
           return
         }
-        const result = await util.resolveDownLink(type, downFiles, vcodeInput, vcodeResult.vcode)
-        if (result.errno == 0) {
-          resolve(result)
-        } else if (result.errno == -20) {
-          $.showError('验证码输入错误')
-        } else if (result.errno == 121) {
-          $.showError('获取压缩链接失败，文件数量过多')
+        if ($(this).attr('wait') == 1) {
+          return
         } else {
-          $.showError('获取下载链接失败，错误码：' + result.errno)
+          $(this)
+            .css({ 'background-color': '#77afff', border: '1px solid #77afff' })
+            .attr('wait', 1)
+        }
+        try {
+          const result = await util.resolveDownLink(type, downFiles, vcodeInput, vcodeResult.vcode)
+          if (result.errno == 0) {
+            resolve(result)
+          } else if (result.errno == -20) {
+            $.showError('验证码输入错误')
+            refreshVcode()
+          } else if (result.errno == 121) {
+            $.showError('获取压缩链接失败，文件数量过多')
+          } else {
+            $.showError('获取下载链接失败，错误码：' + result.errno)
+          }
+        } catch (e) {
+          console.error(e)
+        } finally {
+          $(this)
+            .css({ 'background-color': '', border: '' })
+            .attr('wait', 0)
         }
       })
 
       //刷新验证码
-      vcodeDialog.find('[type=refresh]').click(async function() {
-        vcodeResult = await util.getVcode()
-        vcodeDialog.find('img.img-code').attr('src', vcodeResult.img)
+      vcodeDialog.find('[type=refresh]').click(function() {
+        refreshVcode()
       })
 
       //关闭

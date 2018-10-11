@@ -1,7 +1,7 @@
 {
   "name": "baiduyun-helper",
   "version": "1.0.0",
-  "description": "A proxyee-down extsion for baiduyun",
+  "description": "A proxyee-down extension for baiduyun",
   "main": "index.js",
   "devDependencies": {
     "babel-core": "^6.26.3",

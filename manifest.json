@@ -5,6 +5,7 @@
     "min": 3.13
   },
   "description": "可获取真实下载链接并推送到Proxyee Down下载，支持单文件、多文件、文件夹",
+  "homepage": "https://github.com/monkeyWie/baiduyun-helper",
   "proxyWildcards": ["pan.baidu.com", "yun.baidu.com"],
   "contentScripts": [{
       "matches": ["^(pan|yun).baidu.com/disk/home.*$"],
