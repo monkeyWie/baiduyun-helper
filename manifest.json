@@ -2,7 +2,7 @@
   "title": "百度云下载",
   "version": 0.26,
   "require": {
-    "min": 3.13
+    "min": 3.2
   },
   "description": "可获取真实下载链接并推送到Proxyee Down下载，支持单文件、多文件、文件夹",
   "homepage": "https://github.com/monkeyWie/baiduyun-helper",
