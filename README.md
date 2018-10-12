@@ -24,15 +24,12 @@
 
 ## 常见问题
 
-<details>
-  <summary>百度云下载速度太慢</summary>
+- [百度云下载速度太慢](https://community.pdown.org/topic/52)
 
-[看这里](https://community.pdown.org/topic/52)
+## BUG 提交
 
-</details>
-
-## BUG提交
 [issue](https://github.com/monkeyWie/baiduyun-helper/issues)
 
 ## 更新日志
+
 [releases](https://github.com/monkeyWie/baiduyun-helper/releases)
