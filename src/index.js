@@ -1,5 +1,5 @@
 import util from './common/util.js'
-import api from './common/api.js'
+import api from 'proxyee-down-extension-sdk'
 
 //监听百度云前端页面加载完成
 util.onBdyInit(async () => {
@@ -58,17 +58,6 @@ util.onBdyInit(async () => {
     }
   }
 
-  //根据下载地址，文件名，文件大小调用Proxyee Down下载
-  const createTask = (downLink, name, size, cookieFlag) => {
-    /*
-      *根据Proxyee Down扩展提供的api来创建任务
-      *api文档：https://github.com/Proxyee Down-org/Proxyee Down-extension#api
-      */
-    const request = buildRequest(downLink, cookieFlag)
-    const response = buildResponse(name, size)
-    api.createTask(request, response)
-  }
-
   //直链下载，只支持单文件
   $(document).on('click', 'a[data-menu-id=pd-direct]', async function() {
     $.block()
@@ -86,7 +75,9 @@ util.onBdyInit(async () => {
     downHandle('dlink', downFiles, result => {
       const downFile = downFiles[0]
       const downLink = util.isShare() ? result.list[0].dlink : result.dlink[0].dlink
-      createTask(downLink, downFile.server_filename, downFile.size, true)
+      const request = buildRequest(downLink, true)
+      const response = buildResponse(downFile.server_filename, downFile.size)
+      api.createTask({ request, response })
     })
   })
 
@@ -107,7 +98,7 @@ util.onBdyInit(async () => {
       */
       try {
         const taskForm = await api.resolve(buildRequest(downLink))
-        api.createTask(taskForm.request, taskForm.response)
+        api.createTask(taskForm)
       } catch (error) {
         const response = JSON.parse(error.responseText)
         if (response.code == 4002) {

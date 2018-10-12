@@ -1,8 +1,12 @@
 {
   "name": "baiduyun-helper",
   "version": "1.0.0",
+  "private": true,
   "description": "A proxyee-down extension for baiduyun",
   "main": "index.js",
+  "dependencies": {
+    "proxyee-down-extension-sdk": "^1.0.2"
+  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^9.0.0",
@@ -20,6 +24,6 @@
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production --progress --display-modules --display-reasons"
   },
-  "author": "monkieWie",
+  "author": "monkeyWie",
   "license": "MIT"
 }
