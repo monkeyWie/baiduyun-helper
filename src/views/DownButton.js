@@ -11,7 +11,7 @@ export default $(`
     <a data-menu-id="pd-batch" class="g-button-menu" href="javascript:;">压缩链接下载</a>
     <a data-menu-id="pd-push" class="g-button-menu" href="javascript:;">批量推送下载</a>
     <div style="height:1px;width:100%;background:#e9e9e9;overflow:hidden;"></div>
-    <a data-menu-id="pd-home" class="g-button-menu" target="_blank" href="https://github.com/proxyee-down-org/proxyee-down-extension/tree/master/baiduYun">使用教程</a>
+    <a data-menu-id="pd-home" class="g-button-menu" target="_blank" href="https://github.com/monkeyWie/baiduyun-helper">使用教程</a>
   </span>
 </span>
 `)

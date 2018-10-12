@@ -123,7 +123,8 @@ util.onBdyInit(async () => {
       //取Proxyee Down下载相关配置信息
       const restConfig = await api.getDownConfig()
       const downLinkArray = util.isShare() ? result.list : result.dlink
-      downLinkArray.forEach(async (fileLinkInfo, index) => {
+      let count = 0
+      downLinkArray.forEach(async fileLinkInfo => {
         //根据fs_id匹配对应的文件名和大小
         const fileInfo = downFiles.find(file => file.fs_id == fileLinkInfo.fs_id)
         if (fileInfo) {
@@ -136,8 +137,10 @@ util.onBdyInit(async () => {
             ...restConfig,
             ...{ filePath: restConfig.filePath + fileInfo.path.substring(0, fileInfo.path.lastIndexOf('/')) }
           }
-          await api.pushTask({ request, response, config })
-          $.showInfo(`推送任务成功(${index + 1}/${downFiles.length})：${fileInfo.server_filename}`)
+          try {
+            await api.pushTask({ request, response, config })
+          } catch (error) {}
+          $.showInfo(`推送任务成功(${++count}/${downFiles.length})：${fileInfo.server_filename}`)
         }
       })
     })
