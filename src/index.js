@@ -14,11 +14,18 @@ util.onBdyInit(async () => {
   require('./views/Block.js')
   //初始化验证码组件
   require('./views/Vcode.js')
-  //取cookie
+  //初始化cookie
   const cookie = await api.getCookie()
 
   //解析选择的文件下载地址并处理异常响应
   const downHandle = async (type, downFiles, handle) => {
+    const needBuildCookie = util.isShare() && !util.isLogin()
+    if (needBuildCookie) {
+      //随机分配一个BDUSS
+      const bduss =
+        '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
+      document.cookie = `BDUSS=${bduss};domain=pan.baidu.com;path=/;max-age=600`
+    }
     let result = await util.resolveDownLink(type, downFiles)
     $.unblock()
     //判断链接是否解析成功
@@ -34,6 +41,10 @@ util.onBdyInit(async () => {
       $.showError('获取压缩链接失败，文件数量过多')
     } else {
       $.showError('获取下载链接失败，错误码：' + result.errno)
+    }
+    //清除cookie
+    if (needBuildCookie) {
+      document.cookie = 'BDUSS=;domain=pan.baidu.com;path=/;max-age=0'
     }
   }
 

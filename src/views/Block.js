@@ -1,6 +1,6 @@
 $.extend({
   block: function() {
-    var blockDiv = $('#pdownBlockDiv')
+    let blockDiv = $('#pdownBlockDiv')
     if (blockDiv.size() == 0) {
       blockDiv = $(`
         <div id="pdownBlockDiv" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index: 95;background-color:rgba(255,255,255,.9)">

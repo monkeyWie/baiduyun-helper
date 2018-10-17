@@ -77,6 +77,8 @@ $.extend({
         try {
           const result = await util.resolveDownLink(type, downFiles, vcodeInput, vcodeResult.vcode)
           if (result.errno == 0) {
+            vcodeBlockDiv.remove()
+            vcodeDialog.remove()
             resolve(result)
           } else if (result.errno == -20) {
             $.showError('验证码输入错误')

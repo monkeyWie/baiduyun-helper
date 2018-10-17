@@ -164,6 +164,7 @@ const getSearchFileList = searchKey => {
     $.ajax({
       url: '/api/search',
       async: true,
+      global: false,
       method: 'GET',
       data: params,
       success(response) {
@@ -261,6 +262,7 @@ function resolvePath(path) {
       $.ajax({
         url: '/api/list',
         async: true,
+        global: false,
         method: 'GET',
         data: params,
         success: function(response) {
@@ -312,7 +314,8 @@ function resolvePath(path) {
         $.ajax({
           url: '/share/list',
           method: 'GET',
-          async: false,
+          async: true,
+          global: false,
           data: params,
           success: function(response) {
             resolve(0 === response.errno ? response.list : [])
@@ -431,7 +434,7 @@ export default {
    */
   resolveDownLink(type, downFiles, vcodeInput, vcodeStr) {
     if (!isShare()) {
-      var params = {
+      const params = {
         sign: getSign(),
         timestamp: yunData.timestamp,
         fidlist: getFidList(downFiles),
@@ -446,7 +449,8 @@ export default {
       return new Promise((resolve, reject) => {
         $.ajax({
           url: '/api/download',
-          async: false,
+          async: true,
+          global: false,
           method: 'POST',
           data: params,
           success(response) {
@@ -469,7 +473,7 @@ export default {
         params.type = type
       }
       if (yunData.SHARE_PUBLIC != 1) {
-        var seKey = decodeURIComponent(getCookie('BDCLND'))
+        let seKey = decodeURIComponent(getCookie('BDCLND'))
         params.extra = `{"sekey":"${seKey}"}`
       }
       //带验证码
@@ -488,7 +492,8 @@ export default {
             yunData.MYBDSTOKEN +
             '&logid=' +
             getLogID(),
-          async: false,
+          async: true,
+          global: false,
           method: 'POST',
           data: params,
           success(response) {
@@ -521,6 +526,7 @@ export default {
         url: '/api/getvcode',
         method: 'GET',
         async: true,
+        global: false,
         data: params,
         success(response) {
           resolve(response)
@@ -532,5 +538,9 @@ export default {
     })
   },
 
-  isShare
+  isShare,
+
+  isLogin() {
+    return $('a[node-type=header-login-btn]').length > 1
+  }
 }
