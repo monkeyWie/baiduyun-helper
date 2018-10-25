@@ -85,7 +85,8 @@ util.onBdyInit(async () => {
     }
     downHandle('dlink', downFiles, result => {
       const downFile = downFiles[0]
-      const downLink = util.isShare() ? result.list[0].dlink : result.dlink[0].dlink
+      let downLink = util.isShare() ? result.list[0].dlink : result.dlink[0].dlink
+      downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
       const request = buildRequest(downLink, true)
       const response = buildResponse(downFile.server_filename, downFile.size)
       api.createTask({ request, response })
@@ -140,7 +141,8 @@ util.onBdyInit(async () => {
         const fileInfo = downFiles.find(file => file.fs_id == fileLinkInfo.fs_id)
         if (fileInfo) {
           //推送至Proxyee Down下载
-          const request = buildRequest(fileLinkInfo.dlink, true)
+          let downLink = fileLinkInfo.dlink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
+          const request = buildRequest(downLink, true)
           const response = buildResponse(fileInfo.server_filename, fileInfo.size)
           //根据百度云文件的路径来设置默认的文件下载路径
           const config = {
