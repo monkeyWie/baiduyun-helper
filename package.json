@@ -20,7 +20,7 @@
     "webpack-cli": "^3.1.0"
   },
   "scripts": {
-    "dev": "webpack --mode production --watch",
+    "dev": "webpack --mode development --watch",
     "build": "webpack --mode production --progress --display-modules --display-reasons"
   },
   "author": "monkeyWie",
