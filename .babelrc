@@ -1,5 +1,13 @@
 {
   "sourceMaps": "inline",
-  "presets": ["env", "stage-2"],
+  "presets": [
+    [
+      "env",
+      {
+        "useBuiltIns": true
+      }
+    ],
+    "stage-2"
+  ],
   "plugins": ["transform-runtime"]
 }

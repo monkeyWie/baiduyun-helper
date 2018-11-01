@@ -1,4 +1,4 @@
-import util from '../common/util.js'
+import api from '../../common/api'
 
 const vcodeBlockDivHtml = `
 <div class="module-canvas" style="position: fixed; left: 0px; top: 0px; z-index: 50; background: rgb(0, 0, 0); opacity: 0.5; width: 100%; height: 100%;"></div>
@@ -52,7 +52,7 @@ $.extend({
       //加载验证码图片
       let vcodeResult
       const refreshVcode = async () => {
-        vcodeResult = await util.getVcode()
+        vcodeResult = await api.getVcode(document.cookie)
         vcodeDialog.find('img.img-code').attr('src', vcodeResult.img)
       }
       await refreshVcode()
@@ -75,7 +75,14 @@ $.extend({
             .attr('wait', 1)
         }
         try {
-          const result = await util.resolveDownLink(type, downFiles, vcodeInput, vcodeResult.vcode)
+          const result = await api.resolveDownLink(
+            type,
+            downFiles,
+            document.cookie,
+            yunData,
+            vcodeInput,
+            vcodeResult.vcode
+          )
           if (result.errno == 0) {
             vcodeBlockDiv.remove()
             vcodeDialog.remove()

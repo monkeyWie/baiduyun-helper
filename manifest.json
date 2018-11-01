@@ -1,19 +1,41 @@
 {
   "title": "百度云下载",
-  "version": 0.27,
+  "version": 0.29,
   "require": {
     "min": 3.2
   },
   "description": "可获取真实下载链接并推送到Proxyee Down下载，支持单文件、多文件、文件夹",
   "homepage": "https://github.com/monkeyWie/baiduyun-helper",
   "proxyWildcards": ["pan.baidu.com", "yun.baidu.com"],
-  "contentScripts": [{
+  "contentScripts": [
+    {
       "matches": ["^(pan|yun).baidu.com/disk/home.*$"],
-      "scripts": ["dist/main.js"]
+      "scripts": ["dist/web.js"]
     },
     {
       "matches": ["^(pan|yun).baidu.com/(s/|share/link).*$"],
-      "scripts": ["dist/main.js"]
+      "scripts": ["dist/web.js"]
+    }
+  ],
+  "settings": [
+    {
+      "name": "bduss",
+      "title": "BDUSS",
+      "type": "String",
+      "description": "用于百度API验证，可以自行在cookie里提取自己账号的BDUSS。"
+    },
+    {
+      "name": "randomUa",
+      "title": "随机UA",
+      "type": "Boolean",
+      "value": true,
+      "description": "随机生成一个UA去下载，可以避免被限速。"
+    },
+    {
+      "name": "speUa",
+      "title": "固定UA",
+      "type": "String",
+      "description": "当存在固定UA时，则优先使用固定UA去下载。"
     }
   ]
 }
