@@ -80,16 +80,16 @@ const interval = setInterval(async () => {
     require('./views/Vcode')
     //初始化cookie
     const cookie = await pdownSdk.getCookie()
+    //初始化BDUSS
+    const bduss =
+      pdown.settings && pdown.settings.bduss
+        ? pdown.settings.bduss
+        : '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
 
     //解析选择的文件下载地址并处理异常响应
     const downHandle = async (type, downFiles, handle) => {
       const needBuildCookie = isShare() && !isLogin()
       if (needBuildCookie) {
-        //随机分配一个BDUSS
-        const bduss =
-          pdown.settings && pdown.settings.bduss
-            ? pdown.settings.bduss
-            : '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
         document.cookie = `BDUSS=${bduss};domain=pan.baidu.com;path=/;max-age=600`
       }
       try {
@@ -139,9 +139,13 @@ const interval = setInterval(async () => {
       if (ua) {
         request.heads['User-Agent'] = ua
       }
-      //如果是下载自己网盘的文件，不带上cookie的去访问直接返回400
-      if (!isShare() && cookieFlag) {
-        request.heads['Cookie'] = cookie
+      if (cookieFlag) {
+        //分享的文件要带上BDUSS
+        if (!isShare()) {
+          request.heads['Cookie'] = cookie
+        } else {
+          request.heads['Cookie'] = `${cookie}; BDUSS=${bduss};`
+        }
       }
       return request
     }
@@ -172,7 +176,7 @@ const interval = setInterval(async () => {
       downHandle('dlink', downFiles, result => {
         const downFile = downFiles[0]
         let downLink = isShare() ? result.list[0].dlink : result.dlink[0].dlink
-        downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
+        //downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
         const request = buildRequest(downLink, true)
         const response = buildResponse(downFile.server_filename, downFile.size)
         pdownSdk.createTask({ request, response })
@@ -191,9 +195,9 @@ const interval = setInterval(async () => {
       downHandle('batch', downFiles, async result => {
         const downLink = result.dlink
         /*
-    压缩链接下载的文件大小和文件名需要通过Proxyee Down解析API解析出来，百度云的api里没有返回对应信息
-    压缩链接不需要传递cookie
-    */
+        压缩链接下载的文件大小和文件名需要通过Proxyee Down解析API解析出来，百度云的api里没有返回对应信息
+        压缩链接不需要传递cookie
+        */
         try {
           const taskForm = await pdownSdk.resolve(buildRequest(downLink))
           pdownSdk.createTask(taskForm)
@@ -227,7 +231,8 @@ const interval = setInterval(async () => {
           const fileInfo = downFiles.find(file => file.fs_id == fileLinkInfo.fs_id)
           if (fileInfo) {
             //推送至Proxyee Down下载
-            let downLink = fileLinkInfo.dlink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
+            let downLink = fileLinkInfo.dlink
+            //downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
             const request = buildRequest(downLink, true)
             const response = buildResponse(fileInfo.server_filename, fileInfo.size)
             //根据百度云文件的路径来设置默认的文件下载路径
