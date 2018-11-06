@@ -84,7 +84,7 @@ const interval = setInterval(async () => {
     const bduss =
       pdown.settings && pdown.settings.bduss
         ? pdown.settings.bduss
-        : 'WwzQzl4V0YySDZaRFlHdjIxY1ZyN1d2REtKVzdWazdHWmVqQk5FWWRhaTl-dGRiQVFBQUFBJCQAAAAAAAAAAAEAAACbViYQ3~HBqLarzvcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL1xsFu9cbBbM'
+        : '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
 
     //解析选择的文件下载地址并处理异常响应
     const downHandle = async (type, downFiles, handle) => {
