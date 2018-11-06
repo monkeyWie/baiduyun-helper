@@ -84,7 +84,7 @@ const interval = setInterval(async () => {
     const bduss =
       pdown.settings && pdown.settings.bduss
         ? pdown.settings.bduss
-        : '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
+        : 'WwzQzl4V0YySDZaRFlHdjIxY1ZyN1d2REtKVzdWazdHWmVqQk5FWWRhaTl-dGRiQVFBQUFBJCQAAAAAAAAAAAEAAACbViYQ3~HBqLarzvcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL1xsFu9cbBbM'
 
     //解析选择的文件下载地址并处理异常响应
     const downHandle = async (type, downFiles, handle) => {
@@ -122,16 +122,10 @@ const interval = setInterval(async () => {
 
     //构造Proxyee Down下载请求参数
     const buildRequest = (downLink, cookieFlag) => {
-      let ua = null
-      if (pdown.settings) {
-        if (pdown.settings.speUa) {
-          ua = pdown.settings.speUa
-        } else if (pdown.settings.randomUa) {
-          ua = 'disk' + parseInt(Math.random() * 1000000)
-        }
-      } else {
-        ua = 'disk' + parseInt(Math.random() * 1000000)
-      }
+      let ua =
+        pdown.settings && pdown.settings.speUa
+          ? pdown.settings.speUa
+          : 'netdisk;6.0.0.12;PC;PC-Windows;10.0.16299;WindowsBaiduYunGuanJia'
       const request = {
         url: downLink,
         heads: {}
