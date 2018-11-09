@@ -1,6 +1,6 @@
 {
   "title": "百度云下载",
-  "version": 0.32,
+  "version": 0.33,
   "require": {
     "min": 3.2
   },
@@ -17,18 +17,22 @@
       "scripts": ["dist/web.js"]
     }
   ],
+  "hookScript": {
+    "script": "dist/hook.js",
+    "events": [
+      {
+        "on": "start",
+        "matches": ["^.*\\.baidu.com.*$"],
+        "method": "onStart"
+      }
+    ]
+  },
   "settings": [
     {
       "name": "bduss",
       "title": "BDUSS",
       "type": "String",
       "description": "用于百度API验证，可以自行在cookie里提取自己账号的BDUSS。"
-    },
-    {
-      "name": "speUa",
-      "title": "UA",
-      "type": "String",
-      "description": "设定一个UA去下载。"
     }
   ]
 }
