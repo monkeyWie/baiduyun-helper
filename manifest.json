@@ -1,6 +1,6 @@
 {
   "title": "百度云下载",
-  "version": 0.33,
+  "version": 0.34,
   "require": {
     "min": 3.2
   },
@@ -15,24 +15,6 @@
     {
       "matches": ["^(pan|yun).baidu.com/(s/|share/link).*$"],
       "scripts": ["dist/web.js"]
-    }
-  ],
-  "hookScript": {
-    "script": "dist/hook.js",
-    "events": [
-      {
-        "on": "start",
-        "matches": ["^.*\\.baidu.com.*$"],
-        "method": "onStart"
-      }
-    ]
-  },
-  "settings": [
-    {
-      "name": "bduss",
-      "title": "BDUSS",
-      "type": "String",
-      "description": "用于百度API验证，可以自行在cookie里提取自己账号的BDUSS。"
     }
   ]
 }
