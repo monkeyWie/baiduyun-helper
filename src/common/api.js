@@ -156,41 +156,15 @@ export default {
   resolveDownLink(type, downFiles, cookie, yunData, vcodeInput, vcodeStr) {
     if (!yunData.SHARE_ID) {
       if (type === 'dlink') {
-        const params = {
-          app_id: 250528,
-          channel: '00000000000000000000000000000000',
-          check_blue: 1,
-          clienttype: 8,
-          devuid: 0,
-          dtype: 1,
-          ehps: 0,
-          err_ver: 1,
-          es: 1,
-          esl: 1,
-          method: 'locatedownload',
-          path: downFiles[0].path,
-          time: new Date().getTime(),
-          ver: 4,
-          version: '6.0.0.12',
-          vip: 2
-        }
-        return new Promise((resolve, reject) => {
-          $.ajax({
-            url: 'https://d.pcs.baidu.com/rest/2.0/pcs/file',
-            async: true,
-            global: false,
-            method: 'GET',
-            data: params,
-            xhrFields: {
-              withCredentials: true
-            },
-            dataType: 'JSON',
-            success(response) {
-              resolve(response)
-            },
-            error(request, status, error) {
-              reject(request, status, error)
-            }
+        return new Promise(resolve => {
+          const path = downFiles[0].path
+          const random = Math.random()
+          resolve({
+            urls: [
+              {
+                url: `http://pcs.baidu.com/rest/2.0/pcs/file?method=download&path=${path}&random=${random}&app_id=498065`
+              }
+            ]
           })
         })
       } else {
