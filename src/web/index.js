@@ -196,7 +196,7 @@ const interval = setInterval(async () => {
           downLink = api.findFastCdn((await api.resolveShareDownLink(result.list[0].dlink)).urls)
         }
         //downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
-        const request = buildRequest(downLink, false)
+        const request = buildRequest(downLink, true)
         const response = buildResponse(downFile.server_filename, downFile.size)
         pdownSdk.createTask({
           request,
