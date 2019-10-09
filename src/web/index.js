@@ -81,54 +81,66 @@ const interval = setInterval(async () => {
     //初始化cookie
     const cookie = await pdownSdk.getCookie()
 
-    //检查是否登录
-    const checkLogin = () => {
-      if (!isLogin()) {
-        $.showError('由于百度云调整，下载分享链接需要登录账号')
-        return false
-      }
-      return true
-    }
-
     //解析选择的文件下载地址并处理异常响应
     const downHandle = async (type, downFiles, handle) => {
+      const needBuildCookie = isShare() && !isLogin()
+      if (needBuildCookie) {
+        //随机分配一个BDUSS
+        const bduss =
+          pdown.settings && pdown.settings.bduss
+            ? pdown.settings.bduss
+            : '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
+        document.cookie = `BDUSS=${bduss};domain=pan.baidu.com;path=/;max-age=600`
+      }
       try {
         let result = await api.resolveDownLink(type, downFiles, document.cookie, yunData)
         $.unblock()
-        if (result.errno === undefined) {
+        //判断链接是否解析成功
+        if (result.errno == 0) {
+          //解析链接成功，调用成Proxyee Down进行下载
           handle(result)
+        } else if (result.errno == -20) {
+          //解析失败，需要输入验证码
+          handle(await $.vcodeConfirm(type, downFiles))
+        } else if (result.errno == 112) {
+          $.showError('页面过期，请刷新重试')
+        } else if (result.errno == 121) {
+          $.showError('获取压缩链接失败，文件数量过多')
         } else {
-          //判断链接是否解析成功
-          if (result.errno == 0) {
-            //解析链接成功，调用成Proxyee Down进行下载
-            handle(result)
-          } else if (result.errno == -20) {
-            //解析失败，需要输入验证码
-            handle(await $.vcodeConfirm(type, downFiles))
-          } else if (result.errno == 112) {
-            $.showError('页面过期，请刷新重试')
-          } else if (result.errno == 121) {
-            $.showError('获取压缩链接失败，文件数量过多')
-          } else {
-            $.showError('获取下载链接失败，错误码：' + result.errno)
-          }
+          $.showError('获取下载链接失败，错误码：' + result.errno)
         }
       } catch (e) {
         console.error(e)
       } finally {
         $.unblock()
+        //清除cookie
+        if (needBuildCookie) {
+          document.cookie = 'BDUSS=;domain=pan.baidu.com;path=/;max-age=0'
+        }
       }
     }
 
     //构造Proxyee Down下载请求参数
     const buildRequest = (downLink, cookieFlag) => {
+      let ua = null
+      if (pdown.settings) {
+        if (pdown.settings.speUa) {
+          ua = pdown.settings.speUa
+        } else if (pdown.settings.randomUa) {
+          ua = 'disk' + parseInt(Math.random() * 1000000)
+        }
+      } else {
+        ua = 'disk' + parseInt(Math.random() * 1000000)
+      }
       const request = {
         url: downLink,
-        heads: {
-          'User-Agent': window.navigator.userAgent
-        }
+        heads: {}
       }
-      if (cookieFlag) {
+      if (ua) {
+        request.heads['User-Agent'] = ua
+      }
+      //如果是下载自己网盘的文件，不带上cookie的去访问直接返回400
+      if (!isShare() && cookieFlag) {
         request.heads['Cookie'] = cookie
       }
       return request
@@ -143,38 +155,8 @@ const interval = setInterval(async () => {
       }
     }
 
-    /**
-     * 推送至Proxyee Down下载
-     * @param {选择的文件信息} fileInfo
-     * @param {下载链接} downLink
-     * @param {下载设置} restConfig
-     */
-    const commonPush = async (fileInfo, downLink, restConfig) => {
-      if (fileInfo) {
-        //downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
-        const request = buildRequest(downLink, true)
-        const response = buildResponse(fileInfo.server_filename, fileInfo.size)
-        //根据百度云文件的路径来设置默认的文件下载路径
-        const config = {
-          ...{},
-          ...restConfig,
-          ...{
-            filePath: restConfig.filePath + fileInfo.path.substring(0, fileInfo.path.lastIndexOf('/'))
-          }
-        }
-        await pdownSdk.pushTask({
-          request,
-          response,
-          config
-        })
-      }
-    }
-
     //直链下载，只支持单文件
     $(document).on('click', 'a[data-menu-id=pd-direct]', async function() {
-      if (!checkLogin()) {
-        return
-      }
       $.block()
       const downFiles = await getDownFiles()
       if (downFiles.length == 0) {
@@ -187,29 +169,18 @@ const interval = setInterval(async () => {
         $.unblock()
         return
       }
-      downHandle('dlink', downFiles, async result => {
+      downHandle('dlink', downFiles, result => {
         const downFile = downFiles[0]
-        let downLink
-        if (!isShare()) {
-          downLink = api.findFastCdn(result.urls)
-        } else {
-          downLink = api.findFastCdn((await api.resolveShareDownLink(result.list[0].dlink)).urls)
-        }
-        //downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
+        let downLink = isShare() ? result.list[0].dlink : result.dlink[0].dlink
+        downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
         const request = buildRequest(downLink, true)
         const response = buildResponse(downFile.server_filename, downFile.size)
-        pdownSdk.createTask({
-          request,
-          response
-        })
+        pdownSdk.createTask({ request, response })
       })
     })
 
     //压缩链接下载，支持单文件和多文件，有最大文件数量下载限制
     $(document).on('click', 'a[data-menu-id=pd-batch]', async function() {
-      if (!checkLogin()) {
-        return
-      }
       $.block()
       const downFiles = await getDownFiles()
       if (downFiles.length == 0) {
@@ -220,9 +191,9 @@ const interval = setInterval(async () => {
       downHandle('batch', downFiles, async result => {
         const downLink = result.dlink
         /*
-        压缩链接下载的文件大小和文件名需要通过Proxyee Down解析API解析出来，百度云的api里没有返回对应信息
-        压缩链接不需要传递cookie
-        */
+    压缩链接下载的文件大小和文件名需要通过Proxyee Down解析API解析出来，百度云的api里没有返回对应信息
+    压缩链接不需要传递cookie
+    */
         try {
           const taskForm = await pdownSdk.resolve(buildRequest(downLink))
           pdownSdk.createTask(taskForm)
@@ -239,9 +210,6 @@ const interval = setInterval(async () => {
 
     //直接推送下载，把选中的文件全部解析成直链，推送到Proxyee Down下载，不弹下载框使用默认下载路径和连接数
     $(document).on('click', 'a[data-menu-id=pd-push]', async function() {
-      if (!checkLogin()) {
-        return
-      }
       $.block()
       const downFiles = await getDownFilesDeep()
       if (downFiles.length == 0) {
@@ -249,39 +217,32 @@ const interval = setInterval(async () => {
         $.unblock()
         return
       }
-      //取Proxyee Down下载相关配置信息
-      const restConfig = await pdownSdk.getDownConfig()
-      let count = 0
-      if (!isShare()) {
-        downFiles.forEach(fileInfo => {
-          downHandle('dlink', [fileInfo], async result => {
-            try {
-              await commonPush(fileInfo, api.findFastCdn(result.urls), restConfig)
-            } catch (error) {
-              console.error(error)
+      downHandle('dlink', downFiles, async result => {
+        //取Proxyee Down下载相关配置信息
+        const restConfig = await pdownSdk.getDownConfig()
+        const downLinkArray = isShare() ? result.list : result.dlink
+        let count = 0
+        downLinkArray.forEach(async fileLinkInfo => {
+          //根据fs_id匹配对应的文件名和大小
+          const fileInfo = downFiles.find(file => file.fs_id == fileLinkInfo.fs_id)
+          if (fileInfo) {
+            //推送至Proxyee Down下载
+            let downLink = fileLinkInfo.dlink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
+            const request = buildRequest(downLink, true)
+            const response = buildResponse(fileInfo.server_filename, fileInfo.size)
+            //根据百度云文件的路径来设置默认的文件下载路径
+            const config = {
+              ...{},
+              ...restConfig,
+              ...{ filePath: restConfig.filePath + fileInfo.path.substring(0, fileInfo.path.lastIndexOf('/')) }
             }
-            $.showInfo(`推送任务成功(${++count}/${downFiles.length})：${fileInfo.server_filename}`)
-          })
-        })
-      } else {
-        downHandle('dlink', downFiles, async result => {
-          const downLinkArray = result.list
-          downLinkArray.forEach(async fileLinkInfo => {
-            //根据fs_id匹配对应的文件名和大小
-            const fileInfo = downFiles.find(file => file.fs_id == fileLinkInfo.fs_id)
             try {
-              await commonPush(
-                fileInfo,
-                api.findFastCdn((await api.resolveShareDownLink(fileLinkInfo.dlink)).urls),
-                restConfig
-              )
-            } catch (error) {
-              console.error(error)
-            }
+              await pdownSdk.pushTask({ request, response, config })
+            } catch (error) {}
             $.showInfo(`推送任务成功(${++count}/${downFiles.length})：${fileInfo.server_filename}`)
-          })
+          }
         })
-      }
+      })
     })
   }
 }, 100)

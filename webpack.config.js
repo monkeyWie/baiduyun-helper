@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = () => ({
   entry: {
     web: './src/web/index.js',
-    // hook: './src/hook/index.js'
+    hook: './src/hook/index.js'
   },
   output: {
     path: path.join(__dirname, 'dist'),

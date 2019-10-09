@@ -155,47 +155,33 @@ export default {
    */
   resolveDownLink(type, downFiles, cookie, yunData, vcodeInput, vcodeStr) {
     if (!yunData.SHARE_ID) {
-      if (type === 'dlink') {
-        return new Promise(resolve => {
-          const path = downFiles[0].path
-          const random = Math.random()
-          resolve({
-            urls: [
-              {
-                url: `http://pcs.baidu.com/rest/2.0/pcs/file?method=download&path=${path}&random=${random}&app_id=498065`
-              }
-            ]
-          })
-        })
-      } else {
-        const params = {
-          sign: getSign(yunData),
-          timestamp: yunData.timestamp,
-          fidlist: getFidList(downFiles),
-          type: type,
-          channel: 'chunlei',
-          web: 1,
-          app_id: 250528,
-          bdstoken: yunData.MYBDSTOKEN,
-          logid: getLogID(cookie),
-          clienttype: 0
-        }
-        return new Promise((resolve, reject) => {
-          $.ajax({
-            url: 'https://pan.baidu.com/api/download',
-            async: true,
-            global: false,
-            method: 'POST',
-            data: params,
-            success(response) {
-              resolve(response)
-            },
-            error(request, status, error) {
-              reject(request, status, error)
-            }
-          })
-        })
+      const params = {
+        sign: getSign(yunData),
+        timestamp: yunData.timestamp,
+        fidlist: getFidList(downFiles),
+        type: type,
+        channel: 'chunlei',
+        web: 1,
+        app_id: 250528,
+        bdstoken: yunData.MYBDSTOKEN,
+        logid: getLogID(cookie),
+        clienttype: 0
       }
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: 'https://pan.baidu.com/api/download',
+          async: true,
+          global: false,
+          method: 'POST',
+          data: params,
+          success(response) {
+            resolve(response)
+          },
+          error(request, status, error) {
+            reject(request, status, error)
+          }
+        })
+      })
     } else {
       const params = {
         encrypt: 0,
@@ -239,74 +225,6 @@ export default {
           }
         })
       })
-    }
-  },
-  resolveShareDownLink(url) {
-    //https://c.pcs.baidu.com/file/ab83d33b3f250a6ff472b8ffa17c3e5f?fid=&dstime=&rt=&sign=&expires=&chkv=&chkbd=&chkpc=&dp-logid=&dp-callid=0&shareid=3786359813&r=730340955
-    const urlArray = url.split('?')
-    const path = urlArray[0].substring(urlArray[0].lastIndexOf('/') + 1)
-    const params = {
-      app_id: 250528,
-      channel: '00000000000000000000000000000000',
-      check_blue: 1,
-      chkbd: null,
-      chkpc: null,
-      chkv: null,
-      clienttype: 8,
-      devuid: 0,
-      'dp-callid': null,
-      'dp-logid': null,
-      dstime: null,
-      dtype: 1,
-      ehps: 0,
-      err_ver: 1,
-      es: 1,
-      esl: 1,
-      expires: null,
-      fid: null,
-      method: 'locatedownload',
-      path: path,
-      r: null,
-      rt: null,
-      shareid: null,
-      sign: null,
-      time: new Date().getTime(),
-      ver: 4,
-      version: '6.0.0.12',
-      vip: 2
-    }
-    urlArray[1].split('&').forEach(kv => {
-      const splitIndex = kv.indexOf('=')
-      params[kv.substring(0, splitIndex)] = kv.substring(splitIndex + 1)
-    })
-    params['sign'] = decodeURIComponent(params['sign'])
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        url: 'https://d.pcs.baidu.com/rest/2.0/pcs/file',
-        async: true,
-        global: false,
-        method: 'GET',
-        data: params,
-        xhrFields: {
-          withCredentials: true
-        },
-        dataType: 'JSON',
-        success(response) {
-          resolve(response)
-        },
-        error(request, status, error) {
-          reject(request, status, error)
-        }
-      })
-    })
-  },
-  findFastCdn(urls) {
-    if (urls && urls.length) {
-      const fastUrl = urls.find(url => url.url.match(/.baidupcs.com/))
-      if (fastUrl) {
-        return fastUrl.url
-      }
-      return urls[0].url
     }
   },
   /**

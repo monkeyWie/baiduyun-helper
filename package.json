@@ -5,8 +5,7 @@
   "description": "A proxyee-down extension for baiduyun",
   "main": "index.js",
   "dependencies": {
-    "crypto-js": "^3.1.9-1",
-    "proxyee-down-extension-sdk": "^1.0.9"
+    "proxyee-down-extension-sdk": "^1.0.7"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
