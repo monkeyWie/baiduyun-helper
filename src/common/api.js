@@ -155,33 +155,48 @@ export default {
    */
   resolveDownLink(type, downFiles, cookie, yunData, vcodeInput, vcodeStr) {
     if (!yunData.SHARE_ID) {
-      const params = {
-        sign: getSign(yunData),
-        timestamp: yunData.timestamp,
-        fidlist: getFidList(downFiles),
-        type: type,
-        channel: 'chunlei',
-        web: 1,
-        app_id: 250528,
-        bdstoken: yunData.MYBDSTOKEN,
-        logid: getLogID(cookie),
-        clienttype: 0
-      }
-      return new Promise((resolve, reject) => {
-        $.ajax({
-          url: 'https://pan.baidu.com/api/download',
-          async: true,
-          global: false,
-          method: 'POST',
-          data: params,
-          success(response) {
-            resolve(response)
-          },
-          error(request, status, error) {
-            reject(request, status, error)
-          }
+      if (type === 'dlink') {
+        return new Promise(resolve => {
+          const path = downFiles[0].path
+          const random = Math.random()
+          resolve({
+            errno: 0,
+            dlink: [
+              {
+                dlink: `http://pcs.baidu.com/rest/2.0/pcs/file?method=download&path=${path}&random=${random}&app_id=498065`
+              }
+            ]
+          })
         })
-      })
+      } else {
+        const params = {
+          sign: getSign(yunData),
+          timestamp: yunData.timestamp,
+          fidlist: getFidList(downFiles),
+          type: type,
+          channel: 'chunlei',
+          web: 1,
+          app_id: 250528,
+          bdstoken: yunData.MYBDSTOKEN,
+          logid: getLogID(cookie),
+          clienttype: 0
+        }
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            url: 'https://pan.baidu.com/api/download',
+            async: true,
+            global: false,
+            method: 'POST',
+            data: params,
+            success(response) {
+              resolve(response)
+            },
+            error(request, status, error) {
+              reject(request, status, error)
+            }
+          })
+        })
+      }
     } else {
       const params = {
         encrypt: 0,

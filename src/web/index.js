@@ -83,15 +83,6 @@ const interval = setInterval(async () => {
 
     //解析选择的文件下载地址并处理异常响应
     const downHandle = async (type, downFiles, handle) => {
-      const needBuildCookie = isShare() && !isLogin()
-      if (needBuildCookie) {
-        //随机分配一个BDUSS
-        const bduss =
-          pdown.settings && pdown.settings.bduss
-            ? pdown.settings.bduss
-            : '3c2cFgzWENGUWgxU2FBd2N1bDQ0ekZnd09KVVlaRTlSOUZiWjhqMzBvdG9adTViQVFBQUFBJCQAAAAAAAAAAAEAAABMcNglt9e318Lks7~Jq8DvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGjZxlto2cZbd'
-        document.cookie = `BDUSS=${bduss};domain=pan.baidu.com;path=/;max-age=600`
-      }
       try {
         let result = await api.resolveDownLink(type, downFiles, document.cookie, yunData)
         $.unblock()
@@ -113,17 +104,13 @@ const interval = setInterval(async () => {
         console.error(e)
       } finally {
         $.unblock()
-        //清除cookie
-        if (needBuildCookie) {
-          document.cookie = 'BDUSS=;domain=pan.baidu.com;path=/;max-age=0'
-        }
       }
     }
 
     //构造Proxyee Down下载请求参数
     const buildRequest = (downLink, cookieFlag) => {
       let ua = null
-      if (pdown.settings) {
+      /* if (pdown.settings) {
         if (pdown.settings.speUa) {
           ua = pdown.settings.speUa
         } else if (pdown.settings.randomUa) {
@@ -131,7 +118,7 @@ const interval = setInterval(async () => {
         }
       } else {
         ua = 'disk' + parseInt(Math.random() * 1000000)
-      }
+      } */
       const request = {
         url: downLink,
         heads: {}
@@ -140,7 +127,7 @@ const interval = setInterval(async () => {
         request.heads['User-Agent'] = ua
       }
       //如果是下载自己网盘的文件，不带上cookie的去访问直接返回400
-      if (!isShare() && cookieFlag) {
+      if (cookieFlag) {
         request.heads['Cookie'] = cookie
       }
       return request
@@ -172,6 +159,7 @@ const interval = setInterval(async () => {
       downHandle('dlink', downFiles, result => {
         const downFile = downFiles[0]
         let downLink = isShare() ? result.list[0].dlink : result.dlink[0].dlink
+        // downLink = downLink.replace(/^https:/, 'http:')
         downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
         const request = buildRequest(downLink, true)
         const response = buildResponse(downFile.server_filename, downFile.size)
@@ -227,7 +215,9 @@ const interval = setInterval(async () => {
           const fileInfo = downFiles.find(file => file.fs_id == fileLinkInfo.fs_id)
           if (fileInfo) {
             //推送至Proxyee Down下载
-            let downLink = fileLinkInfo.dlink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
+            let downLink = fileLinkInfo.dlink
+            //downLink = downLink.replace(/^https:/, 'http:')
+            downLink = downLink.replace(/d.pcs.baidu.com/g, 'pcs.baidu.com')
             const request = buildRequest(downLink, true)
             const response = buildResponse(fileInfo.server_filename, fileInfo.size)
             //根据百度云文件的路径来设置默认的文件下载路径
@@ -249,10 +239,6 @@ const interval = setInterval(async () => {
 
 const isShare = () => {
   return !!yunData.SHARE_ID
-}
-
-const isLogin = () => {
-  return yunData.LOGINSTATUS === 1
 }
 
 /**

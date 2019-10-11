@@ -1,6 +1,6 @@
 {
   "title": "百度云下载",
-  "version": 0.29,
+  "version": 0.37,
   "require": {
     "min": 3.2
   },
@@ -18,12 +18,6 @@
     }
   ],
   "settings": [
-    {
-      "name": "bduss",
-      "title": "BDUSS",
-      "type": "String",
-      "description": "用于百度API验证，可以自行在cookie里提取自己账号的BDUSS。"
-    },
     {
       "name": "randomUa",
       "title": "随机UA",
