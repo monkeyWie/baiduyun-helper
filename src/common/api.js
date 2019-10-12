@@ -163,7 +163,7 @@ export default {
             errno: 0,
             dlink: [
               {
-                dlink: `http://pcs.baidu.com/rest/2.0/pcs/file?method=download&path=${path}&random=${random}&app_id=498065`
+                dlink: `http://d.pcs.baidu.com/rest/2.0/pcs/file?method=download&path=${path}&random=${random}&app_id=498065`
               }
             ]
           })
